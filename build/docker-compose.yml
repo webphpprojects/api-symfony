@@ -1,0 +1,43 @@
+version: '2'
+
+#
+#Services definition
+#
+services:
+    data:
+        image: busybox
+        container_name: "${PROJECT_NAME}_data"
+        volumes:
+            - "${WEB_DIR}:/var/www/html"
+
+    php:
+        build: php7
+        container_name: "${PROJECT_NAME}_php"
+        expose:
+            - 9000
+        volumes_from:
+            - data
+        links:
+            - database
+
+    server:
+        build: apache
+        container_name: "${PROJECT_NAME}_server"
+        volumes_from:
+            - data
+        links:
+            - php
+        ports:
+            - 8799:80
+            - 447:443
+        environment:
+            WEB_DOCUMENT_ROOT: "/var/www/html"
+
+    database:
+        image: mariadb:latest
+        container_name: "${PROJECT_NAME}_database"
+        ports:
+            - "3304:3306"
+        env_file: .env
+        volumes_from:
+            - data
