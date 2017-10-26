@@ -1,4 +1,4 @@
-Symfony API - RESTful API based on Symfony 3.4
+Symfony API - RESTful API based on Symfony 3.3
 =============
 
 ## Prepare environment
