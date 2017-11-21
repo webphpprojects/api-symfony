@@ -20,3 +20,4 @@ default:
       kernel:
         env: "acceptance"
         debug: "true"
+        bootstrap: "vendor/autoload.php"
