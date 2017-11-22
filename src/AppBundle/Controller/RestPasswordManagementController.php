@@ -3,18 +3,18 @@
 namespace AppBundle\Controller;
 
 use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Controller\Annotations\RouteResource;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
-use FOS\RestBundle\Controller\Annotations\RouteResource;
 use FOS\UserBundle\Event\FilterUserResponseEvent;
+use FOS\UserBundle\Event\FormEvent;
 use FOS\UserBundle\Event\GetResponseNullableUserEvent;
 use FOS\UserBundle\Event\GetResponseUserEvent;
 use FOS\UserBundle\FOSUserEvents;
-use FOS\UserBundle\Event\FormEvent;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -30,69 +30,53 @@ class RestPasswordManagementController extends FOSRestController implements Clas
     public function requestResetAction(Request $request)
     {
         $username = $request->request->get('username');
-
         /** @var $user UserInterface */
         $user = $this->get('fos_user.user_manager')->findUserByUsernameOrEmail($username);
-
         /** @var $dispatcher EventDispatcherInterface */
         $dispatcher = $this->get('event_dispatcher');
-
         /* Dispatch init event */
         $event = new GetResponseNullableUserEvent($user, $request);
         $dispatcher->dispatch(FOSUserEvents::RESETTING_SEND_EMAIL_INITIALIZE, $event);
-
         if (null !== $event->getResponse()) {
             return $event->getResponse();
         }
-
         if (null === $user) {
             return new JsonResponse(
                 'User not recognised',
                 JsonResponse::HTTP_FORBIDDEN
             );
         }
-
         $event = new GetResponseUserEvent($user, $request);
         $dispatcher->dispatch(FOSUserEvents::RESETTING_RESET_REQUEST, $event);
-
         if (null !== $event->getResponse()) {
             return $event->getResponse();
         }
-
         if ($user->isPasswordRequestNonExpired($this->container->getParameter('fos_user.resetting.token_ttl'))) {
             return new JsonResponse(
                 $this->get('translator')->trans('resetting.password_already_requested', [], 'FOSUserBundle'),
                 JsonResponse::HTTP_FORBIDDEN
             );
         }
-
         if (null === $user->getConfirmationToken()) {
             /** @var $tokenGenerator \FOS\UserBundle\Util\TokenGeneratorInterface */
             $tokenGenerator = $this->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
         }
-
         /* Dispatch confirm event */
         $event = new GetResponseUserEvent($user, $request);
         $dispatcher->dispatch(FOSUserEvents::RESETTING_SEND_EMAIL_CONFIRM, $event);
-
         if (null !== $event->getResponse()) {
             return $event->getResponse();
         }
-
         $this->get('fos_user.mailer')->sendResettingEmailMessage($user);
         $user->setPasswordRequestedAt(new \DateTime());
         $this->get('fos_user.user_manager')->updateUser($user);
-
-
         /* Dispatch completed event */
         $event = new GetResponseUserEvent($user, $request);
         $dispatcher->dispatch(FOSUserEvents::RESETTING_SEND_EMAIL_COMPLETED, $event);
-
         if (null !== $event->getResponse()) {
             return $event->getResponse();
         }
-
         return new JsonResponse(
             $this->get('translator')->trans(
                 'resetting.check_email',
@@ -199,7 +183,7 @@ class RestPasswordManagementController extends FOSRestController implements Clas
         $formFactory = $this->get('fos_user.change_password.form.factory');
 
         $form = $formFactory->createForm([
-            'csrf_protection' => false
+            'csrf_protection' => false,
         ]);
         $form->setData($user);
         $form->submit($request->request->all());
