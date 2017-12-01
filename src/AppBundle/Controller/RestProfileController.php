@@ -2,18 +2,7 @@
 
 namespace AppBundle\Controller;
 
-//use FOS\RestBundle\Controller\Annotations\Get;
-//use FOS\RestBundle\Controller\FOSRestController;
-//use FOS\RestBundle\Routing\ClassResourceInterface;
-//use FOS\RestBundle\Controller\Annotations\RouteResource;
-//use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-//use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-//use Symfony\Component\Security\Core\User\UserInterface;
-
-
-use AppBundle\Entity\User;
 use FOS\RestBundle\View\View;
-use FOS\RestBundle\Controller\Annotations;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Routing\ClassResourceInterface;
@@ -22,13 +11,9 @@ use FOS\UserBundle\Event\FilterUserResponseEvent;
 use FOS\UserBundle\Event\GetResponseUserEvent;
 use FOS\UserBundle\FOSUserEvents;
 use FOS\UserBundle\Event\FormEvent;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
